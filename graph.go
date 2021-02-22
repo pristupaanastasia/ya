@@ -9,38 +9,83 @@ type graph struct {
 	x int
 	y int
 	name int
-	len int
+
 }
 
-func Sqrt(x int) int {
-	z := 1.0
-	check := 0.0
-	b := float64(x)
-	for i:=0; i <= 6; i++	{
-		z = z - (z*z - b)/(2*z)
-		if i != 0 {
-			if check - z < 0.00000001 {
-				break
-			}
-		}
-		check = z
-	}
-	return int(z)
-}
 
 func solve(g []graph, max int, start int, end int){
 
+	m := make([][]int,len(g))
+	for j,_:= range m{
+		m[j] = make([]int,len(g))
+	}
 	for i,_:= range g{
-		g[i].len = (g[i].x + g[start -1].x)*(g[i].x + g[start -1].x)  + (g[i].y + g[start-1].y)* (g[i].y + g[start-1].y)
-		g[i].len = Sqrt(g[i].len)
-		if g[i].len > max{
-			g[i].len = -1
+		for k,_ := range g {
+			buf := g[i].x-g[k].x
+			buf2 := g[i].y-g[k].y
+			if buf < 0 {
+				buf = -buf
+			}
+			if buf2 < 0 {
+				buf2 = -buf2
+			}
+			m[i][k] = buf + buf2
+			if m[i][k] > max || i ==k{
+				m[i][k] = -1
+			}
 		}
+	}
+	if m[start-1][end -1] > 0{
+		fmt.Println(1)
+		return
+	}
+	alg := make([]int,0)
+	buf := make([]int,0)
+	for j,_ := range m[start-1]{
+		if m[start-1][j] >0 && j != start -1 {
+			alg = append(alg, j)
+		}
+	}
+	if len(alg) ==0{
+		fmt.Println(-1)
+		return
+	}
+	min :=1
+	k := -1
 
+	for {
+		k=k+1
 
+		for j,_:=range m[alg[k]] {
+			if m[j][alg[k]] > 0  && (j == end -1 || alg[k] ==end-1){
+				min = min +1
+				buf = append(buf, j)
+				fmt.Println(min)
+				return
+			}
+			if m[j][alg[k]] >0 && j!=alg[k] && j!=start -1 && (len(buf) ==0 ||alg[k]!= buf[len(buf) -1]){
+
+				buf = append(buf, j)
+			}
+		}
+		if len(buf) == 0{
+			fmt.Println(-1)
+			return
+		}
+		if k == len(alg) -1{
+			alg = nil
+			alg = buf
+			buf = make([]int,0)
+			min = min +1
+			k = -1
+		}
+		if min > len(g) || len(alg) == 0{
+			fmt.Println(-1)
+			return
+		}
 	}
 
-	fmt.Println(g)
+	fmt.Println(min)
 }
 
 
